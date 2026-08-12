@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For Aaliya — Since June 5</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Plus+Jakarta+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <!-- GSAP Animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+        /* ==========================================================================
+           DESIGN SYSTEM & COLOR PALETTE
+           ========================================================================== */
+        :root {
+            --bg-dark: #120c0a;
+            --bg-card: rgba(32, 22, 20, 0.75);
+            --bg-paper: #1c1412;
+            
+            --brown-deep: #1a1210;
+            --brown-coffee: #2e201c;
+            --brown-warm: #4a3530;
+            
+            --cream-soft: #f4efe8;
+            --cream-muted: #dcd3c8;
+            
+            --lavender-soft: #bfa8d3;
+            --lavender-muted: #9d8bb0;
+            --purple-twilight: #2d2136;
+            
+            --rose-dusty: #c48b9f;
+            --border-color: rgba(196, 139, 159, 0.2);
+            
+            --font-serif: 'Playfair Display', Georgia, serif;
+            --font-sans: 'Plus Jakarta Sans', -apple-system, sans-serif;
+            --font-handwriting: 'Caveat', cursive;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            background-color: var(--bg-dark);
+            color: var(--cream-soft);
+            font-family: var(--font-sans);
+            font-weight: 300;
+            line-height: 1.7;
+        }
+
+        body {
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            background: radial-gradient(circle at 50% 20%, var(--purple-twilight) 0%, var(--bg-dark) 70%);
+        }
+
+        #petals-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* NAVIGATION & AUDIO TOOLBAR */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 48px;
+            z-index: 100;
+            background: linear-gradient(to bottom, rgba(18, 12, 10, 0.95), transparent);
+            backdrop-filter: blur(8px);
+        }
+
+        .nav-brand {
+            font-family: var(--font-serif);
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+            color: var(--rose-dusty);
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 32px;
+        }
+
+        .nav-links button {
+            background: none;
+            border: none;
+            color: var(--cream-muted);
+            font-family: var(--font-sans);
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links button:hover, .nav-links button.active {
+            color: var(--lavender-soft);
+        }
+
+        .audio-control {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .music-btn {
+            background: var(--brown-coffee);
+            border: 1px solid var(--border-color);
+            color: var(--lavender-soft);
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            transition: all 0.3s ease;
+        }
+
+        .music-btn:hover {
+            transform: scale(1.08);
+            background: var(--brown-warm);
+            border-color: var(--lavender-soft);
+        }
+
+        .music-tooltip {
+            font-size: 0.8rem;
+            background: rgba(26, 18, 16, 0.9);
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            color: var(--cream-muted);
+            opacity: 0.8;
+        }
+
+        /* PAGE MANAGEMENT */
+        .page-section {
+            display: none;
+            min-height: 100vh;
+            position: relative;
+            z-index: 2;
+            opacity: 0;
+            transition: opacity 0.6s ease-in-out;
+        }
+
+        .page-section.active {
+            display: block;
+            opacity: 1;
+        }
+
+        /* BUTTONS */
+        .btn-primary {
+            display: inline-block;
+            padding: 14px 32px;
+            background: linear-gradient(135deg, var(--brown-coffee), var(--purple-twilight));
+            border: 1px solid var(--border-color);
+            color: var(--cream-soft);
+            text-decoration: none;
+            border-radius: 30px;
+            font-size: 0.95rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            border-color: var(--lavender-soft);
+            box-shadow: 0 12px 30px rgba(191, 168, 211, 0.2);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px dashed var(--lavender-muted);
+            color: var(--lavender-soft);
+            padding: 10px 24px;
+            border-radius: 20px;
+            font-family: var(--font-sans);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(157, 139, 176, 0.1);
+            border-color: var(--lavender-soft);
+        }
+
+        /* PAGE 1: HERO / HOME */
+        .hero-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 24px;
+            position: relative;
+        }
+
+        .twilight-glow {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(196, 139, 159, 0.12) 0%, rgba(0,0,0,0) 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+
+        .hero-content {
+            max-width: 680px;
+            text-align: center;
+        }
+
+        .japanese-subtext {
+            display: block;
+            font-size: 0.9rem;
+            color: var(--rose-dusty);
+            letter-spacing: 3px;
+            margin-bottom: 16px;
+        }
+
+        .japanese-subtext .translation {
+            color: var(--cream-muted);
+            font-weight: 300;
+        }
+
+        .hero-date {
+            display: block;
+            font-family: var(--font-handwriting);
+            font-size: 1.8rem;
+            color: var(--lavender-soft);
+            margin-bottom: 8px;
+        }
+
+        .hero-title {
+            font-family: var(--font-serif);
+            font-size: clamp(3rem, 6vw, 4.5rem);
+            font-weight: 400;
+            color: var(--cream-soft);
+            margin-bottom: 16px;
+            line-height: 1.1;
+        }
+
+        .hero-subtitle {
+            font-family: var(--font-serif);
+            font-style: italic;
+            font-size: 1.25rem;
+            color: var(--rose-dusty);
+            margin-bottom: 24px;
+        }
+
+        .hero-paragraph {
+            font-size: 1.05rem;
+            color: var(--cream-muted);
+            margin-bottom: 40px;
+            max-width: 580px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* PAGE 2: OUR STORY & TIMELINE */
+        .story-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 140px 24px 80px;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 70px;
+        }
+
+        .handwritten-tag {
+            font-family: var(--font-handwriting);
+            font-size: 1.8rem;
+            color: var(--rose-dusty);
+            display: block;
+        }
+
+        .page-title {
+            font-family: var(--font-serif);
+            font-size: 2.8rem;
+            margin-bottom: 8px;
+        }
+
+        .page-subtitle {
+            color: var(--cream-muted);
+        }
+
+        .timeline-wrapper {
+            position: relative;
+            margin-bottom: 100px;
+            padding: 20px 0;
+        }
+
+        .timeline-line {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: linear-gradient(to bottom, transparent, var(--lavender-muted), var(--rose-dusty), transparent);
+            transform: translateX(-50%);
+        }
+
+        .timeline-item {
+            display: flex;
+            justify-content: flex-end;
+            padding-right: 50%;
+            position: relative;
+            margin-bottom: 48px;
+        }
+
+        .timeline-item:nth-child(even) {
+            justify-content: flex-start;
+            padding-right: 0;
+            padding-left: 50%;
+        }
+
+        .timeline-node {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            transform: translateX(-50%);
+            width: 36px;
+            height: 36px;
+            background: var(--brown-coffee);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            z-index: 2;
+        }
+
+        .timeline-content {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 24px;
+            border-radius: 16px;
+            max-width: 360px;
+            margin: 0 24px;
+            backdrop-filter: blur(10px);
+        }
+
+        .timeline-date {
+            font-family: var(--font-handwriting);
+            font-size: 1.3rem;
+            color: var(--lavender-soft);
+            display: block;
+        }
+
+        .timeline-content h3 {
+            font-family: var(--font-serif);
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+            color: var(--cream-soft);
+        }
+
+        .timeline-content p {
+            font-size: 0.92rem;
+            color: var(--cream-muted);
+        }
+
+        .section-divider {
+            text-align: center;
+            margin: 60px 0 30px;
+            opacity: 0.5;
+        }
+
+        .section-heading {
+            text-align: center;
+            font-family: var(--font-serif);
+            font-size: 2rem;
+            margin-bottom: 40px;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 24px;
+            margin-bottom: 60px;
+        }
+
+        .memory-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 28px 24px;
+            border-radius: 16px;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .memory-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--lavender-soft);
+        }
+
+        .card-icon {
+            font-size: 1.8rem;
+            margin-bottom: 12px;
+        }
+
+        .memory-card h3 {
+            font-family: var(--font-serif);
+            font-size: 1.15rem;
+            margin-bottom: 8px;
+            color: var(--rose-dusty);
+        }
+
+        .memory-card p {
+            font-size: 0.9rem;
+            color: var(--cream-muted);
+        }
+
+        .next-page-cta {
+            text-align: center;
+            margin-top: 60px;
+        }
+
+        /* PAGE 3: THE LETTER */
+        .letter-container {
+            max-width: 740px;
+            margin: 0 auto;
+            padding: 140px 24px 60px;
+        }
+
+        .letter-paper {
+            background: var(--bg-paper);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 60px 48px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .kanji-watermark {
+            position: absolute;
+            top: -20px;
+            right: 20px;
+            font-size: 10rem;
+            color: rgba(255, 255, 255, 0.02);
+            font-family: serif;
+            pointer-events: none;
+        }
+
+        .letter-header {
+            margin-bottom: 32px;
+        }
+
+        .letter-header h2 {
+            font-family: var(--font-serif);
+            font-size: 2rem;
+            color: var(--cream-soft);
+        }
+
+        .letter-body p {
+            margin-bottom: 20px;
+            font-size: 1.02rem;
+            color: var(--cream-muted);
+            line-height: 1.8;
+        }
+
+        .letter-footer {
+            margin-top: 40px;
+            padding-top: 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .signature-block {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .signature {
+            font-family: var(--font-handwriting);
+            font-size: 2rem;
+            color: var(--rose-dusty);
+        }
+
+        .flower-icon {
+            font-size: 1.2rem;
+        }
+
+        .secret-message-wrapper {
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        .hidden-message {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(191, 168, 211, 0.08);
+            border: 1px solid var(--lavender-muted);
+            border-radius: 12px;
+            font-family: var(--font-serif);
+            font-style: italic;
+            color: var(--lavender-soft);
+            animation: fadeIn 0.8s ease;
+        }
+
+        .final-notes {
+            text-align: center;
+            margin: 80px 0 40px;
+        }
+
+        .quiet-text {
+            font-family: var(--font-serif);
+            font-style: italic;
+            color: var(--cream-muted);
+            font-size: 1.1rem;
+            line-height: 1.9;
+            margin-bottom: 24px;
+        }
+
+        .final-thankyou {
+            font-family: var(--font-handwriting);
+            font-size: 2rem;
+            color: var(--rose-dusty);
+        }
+
+        .flower-field-visual {
+            margin-top: 24px;
+            font-size: 1.4rem;
+            letter-spacing: 12px;
+            opacity: 0.7;
+        }
+
+        .site-footer {
+            text-align: center;
+            padding: 40px 24px;
+            font-size: 0.82rem;
+            color: var(--brown-warm);
+            border-top: 1px solid rgba(255,255,255,0.03);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* RESPONSIVE DESIGN */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 16px 24px;
+            }
+
+            .nav-links {
+                gap: 16px;
+            }
+
+            .nav-links button {
+                font-size: 0.8rem;
+            }
+
+            .timeline-line {
+                left: 24px;
+            }
+
+            .timeline-item, .timeline-item:nth-child(even) {
+                padding-left: 60px;
+                padding-right: 0;
+                justify-content: flex-start;
+            }
+
+            .timeline-node {
+                left: 24px;
+            }
+
+            .timeline-content {
+                max-width: 100%;
+                margin: 0;
+            }
+
+            .letter-paper {
+                padding: 36px 24px;
+            }
+
+            .hero-title {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Particle Canvas for Petals -->
+    <canvas id="petals-canvas"></canvas>
+
+    <!-- Audio Player Toolbar -->
+    <div class="audio-control">
+        <button id="musicToggle" class="music-btn" aria-label="Toggle Music">?</button>
+        <span class="music-tooltip" id="musicTooltip">Play something gentle?</span>
+        <!-- Optional: Place your music file as music.mp3 in the same folder -->
+        <audio id="bgMusic" loop src="music.mp3"></audio>
+    </div>
+
+    <!-- Minimal Navigation -->
+    <nav class="navbar">
+        <div class="nav-brand">June 5</div>
+        <ul class="nav-links">
+            <li><button class="nav-btn active" onclick="switchPage('home')">Home</button></li>
+            <li><button class="nav-btn" onclick="switchPage('story')">Our Story</button></li>
+            <li><button class="nav-btn" onclick="switchPage('letter')">For You</button></li>
+        </ul>
+    </nav>
+
+    <!-- PAGE 1: HOME -->
+    <section id="home" class="page-section active">
+        <main class="hero-container">
+            <div class="twilight-glow"></div>
+            <div class="hero-content">
+                <span class="japanese-subtext">?????? &bull; <span class="translation">I’m sorry, Aaliya.</span></span>
+                <span class="hero-date gsap-reveal">Since June 5…</span>
+                <h1 class="hero-title gsap-reveal">I’m Sorry, Aaliya.</h1>
+                <p class="hero-subtitle gsap-reveal">I ended something I wish I had protected.</p>
+                <p class="hero-paragraph gsap-reveal">
+                    Some things become clearer only after we lose the courage to hold onto them. 
+                    I’ve had time to think about my decision, and I know I hurt you. I’m truly sorry.
+                </p>
+                <div class="hero-cta gsap-reveal">
+                    <button class="btn-primary" onclick="switchPage('story')">Read what I couldn't say &rarr;</button>
+                </div>
+            </div>
+        </main>
+    </section>
+
+    <!-- PAGE 2: OUR STORY -->
+    <section id="story" class="page-section">
+        <main class="story-container">
+            <header class="section-header">
+                <span class="handwritten-tag">Memories</span>
+                <h1 class="page-title">Where It Started</h1>
+                <p class="page-subtitle">June 5 — the day our story began, Aaliya.</p>
+            </header>
+
+            <div class="timeline-wrapper">
+                <div class="timeline-line"></div>
+
+                <div class="timeline-item">
+                    <div class="timeline-node">??</div>
+                    <div class="timeline-content">
+                        <span class="timeline-date">June 5</span>
+                        <h3>The First Conversation</h3>
+                        <p>It started with a simple Instagram story. I didn't know then how much reaching out to you, Aaliya, would end up meaning to me.</p>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-node">??</div>
+                    <div class="timeline-content">
+                        <span class="timeline-date">Then…</span>
+                        <h3>Quiet Anticipation</h3>
+                        <p>Little conversations slowly became something I looked forward to every day. Your presence felt soft, effortless, and warm.</p>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-node">??</div>
+                    <div class="timeline-content">
+                        <span class="timeline-date">Somewhere along the way…</span>
+                        <h3>A Real Connection</h3>
+                        <p>You became someone who mattered far more than I expected. Learning your quiet preferences, your taste, and your thoughts was a privilege.</p>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-node">???</div>
+                    <div class="timeline-content">
+                        <span class="timeline-date">And then…</span>
+                        <h3>A Regrettable Decision</h3>
+                        <p>I let doubts or fear get the better of me. I made a decision to step away and end things abruptly, without giving us the protection we deserved.</p>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-node">???</div>
+                    <div class="timeline-content">
+                        <span class="timeline-date">Today</span>
+                        <h3>Understanding</h3>
+                        <p>I understand now that ending things doesn't erase what someone meant to you. It only reveals how valuable you were all along, Aaliya.</p>
+                    </div>
+                </div>
+            </div>
+
+            <section class="memories-section">
+                <div class="section-divider"><span>?? ?? ??</span></div>
+                <h2 class="section-heading">Things I Still Remember</h2>
+
+                <div class="cards-grid">
+                    <div class="memory-card">
+                        <div class="card-icon">????</div>
+                        <h3>Japan & Its Aesthetics</h3>
+                        <p>Your appreciation for Japanese gardens, quiet twilight aesthetics, and thoughtful details. It always suited your calm spirit, Aaliya.</p>
+                    </div>
+
+                    <div class="memory-card">
+                        <div class="card-icon">??</div>
+                        <h3>Roses & Lilies</h3>
+                        <p>Your love for roses and delicate lilies—elegant, gentle, and timeless, just like the way you carried yourself.</p>
+                    </div>
+
+                    <div class="memory-card">
+                        <div class="card-icon">??</div>
+                        <h3>Brown & Lavender</h3>
+                        <p>The warmth of deep coffee and chocolate browns paired with soft, calming lavender notes. A palette that felt like home.</p>
+                    </div>
+
+                    <div class="memory-card">
+                        <div class="card-icon">??</div>
+                        <h3>Little Conversations</h3>
+                        <p>The way talking with you made even ordinary evenings feel quiet, personal, and special.</p>
+                    </div>
+
+                    <div class="memory-card">
+                        <div class="card-icon">??</div>
+                        <h3>The Comfort of Speaking to You</h3>
+                        <p>How easy and natural it felt to share thoughts with you without any pretenses or barriers.</p>
+                    </div>
+
+                    <div class="memory-card">
+                        <div class="card-icon">?</div>
+                        <h3>Someone Special</h3>
+                        <p>The quiet realization that having you in my life added a gentleness that I deeply miss today.</p>
+                    </div>
+                </div>
+            </section>
+
+            <div class="next-page-cta">
+                <button class="btn-primary" onclick="switchPage('letter')">Read my letter for you &rarr;</button>
+            </div>
+        </main>
+    </section>
+
+    <!-- PAGE 3: THE LETTER -->
+    <section id="letter" class="page-section">
+        <main class="letter-container">
+            <article class="letter-paper">
+                <header class="letter-header">
+                    <span class="kanji-watermark">??</span>
+                    <span class="handwritten-tag">For You</span>
+                    <h2>Dear Aaliya,</h2>
+                </header>
+
+                <div class="letter-body">
+                    <p>I’m writing this because leaving things in silence felt unfair to you and dishonest to what we had.</p>
+                    
+                    <p>I know I hurt you by ending things abruptly. I can't undo my choice or rewrite how cold it might have felt, but I can be honest about how deeply I regret it. When I texted you that I wouldn't talk anymore, I was acting out of fear and poor judgment—not out of a lack of care.</p>
+
+                    <p>You mattered to me, Aaliya, and you still do. You brought a quiet warmth into my life that I failed to protect properly. I don't expect anything from you, nor do I write this to pressure you or make you uncomfortable. You owe me nothing, and I respect your feelings and your boundary entirely.</p>
+
+                    <p>I just wanted you to know the truth: I loved getting to know you, and I am deeply sorry for causing you pain. If there is still a place in your heart for a quiet conversation someday, I’d be immensely grateful. If there isn't, I will honor that decision completely.</p>
+
+                    <p>I loved the person I got to know. And I’m truly sorry I didn’t protect what we had better.</p>
+                </div>
+
+                <footer class="letter-footer">
+                    <div class="signature-block">
+                        <span class="signature">— With love, always</span>
+                        <span class="flower-icon">??</span>
+                    </div>
+                </footer>
+
+                <div class="secret-message-wrapper">
+                    <button id="revealBtn" class="btn-secondary">Open one last little message</button>
+                    <div id="hiddenMessage" class="hidden-message">
+                        <p>“I don't know what the future holds, Aaliya.<br>
+                        I only know that if I could go back to June 5, I would choose to be more careful with your heart.”</p>
+                    </div>
+                </div>
+            </article>
+
+            <section class="final-notes">
+                <p class="quiet-text">I don't know what this message will mean to you, Aaliya.<br>Maybe nothing. Maybe a little.<br>But I needed to say it. I'm sorry.</p>
+                <p class="final-thankyou">Thank you for being part of my story.</p>
+
+                <div class="flower-field-visual">
+                    <span>??</span><span>??</span><span>??</span><span>??</span><span>??</span>
+                </div>
+            </section>
+        </main>
+
+        <footer class="site-footer">
+            <p>Made with a little regret, a lot of gratitude, and an honest apology for Aaliya.</p>
+        </footer>
+    </section>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // Page Navigation Switcher
+        function switchPage(pageId) {
+            document.querySelectorAll('.page-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            const activeSection = document.getElementById(pageId);
+            activeSection.classList.add('active');
+
+            const activeBtn = Array.from(document.querySelectorAll('.nav-btn')).find(
+                btn => btn.getAttribute('onclick').includes(pageId)
+            );
+            if (activeBtn) activeBtn.classList.add('active');
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            if (typeof gsap !== "undefined") {
+                gsap.from("#" + pageId + " .gsap-reveal", {
+                    opacity: 0,
+                    y: 20,
+                    duration: 1,
+                    stagger: 0.15,
+                    ease: "power2.out"
+                });
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            if (typeof gsap !== "undefined") {
+                gsap.from(".gsap-reveal", {
+                    opacity: 0,
+                    y: 25,
+                    duration: 1.2,
+                    stagger: 0.2,
+                    ease: "power2.out"
+                });
+            }
+
+            const revealBtn = document.getElementById("revealBtn");
+            const hiddenMessage = document.getElementById("hiddenMessage");
+
+            if (revealBtn && hiddenMessage) {
+                revealBtn.addEventListener("click", () => {
+                    if (hiddenMessage.style.display === "block") {
+                        hiddenMessage.style.display = "none";
+                        revealBtn.innerText = "Open one last little message";
+                    } else {
+                        hiddenMessage.style.display = "block";
+                        revealBtn.innerText = "Close message";
+                    }
+                });
+            }
+
+            initAudioPlayer();
+            initPetalsCanvas();
+        });
+
+        function initAudioPlayer() {
+            const musicBtn = document.getElementById("musicToggle");
+            const bgMusic = document.getElementById("bgMusic");
+            const tooltip = document.getElementById("musicTooltip");
+
+            if (!musicBtn || !bgMusic) return;
+
+            let isPlaying = false;
+
+            musicBtn.addEventListener("click", () => {
+                if (isPlaying) {
+                    bgMusic.pause();
+                    musicBtn.innerText = "?";
+                    if (tooltip) tooltip.innerText = "Play something gentle?";
+                } else {
+                    bgMusic.play().then(() => {
+                        musicBtn.innerText = "??";
+                        if (tooltip) tooltip.innerText = "Playing soft audio";
+                    }).catch(() => {
+                        if (tooltip) tooltip.innerText = "Audio file (music.mp3) not found";
+                    });
+                }
+                isPlaying = !isPlaying;
+            });
+        }
+
+        function initPetalsCanvas() {
+            const canvas = document.getElementById("petals-canvas");
+            if (!canvas) return;
+
+            const ctx = canvas.getContext("2d");
+            let width = (canvas.width = window.innerWidth);
+            let height = (canvas.height = window.innerHeight);
+
+            window.addEventListener("resize", () => {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+            });
+
+            const petalColors = [
+                "rgba(196, 139, 159, 0.4)",  /* Dusty Rose */
+                "rgba(191, 168, 211, 0.35)", /* Soft Lavender */
+                "rgba(244, 239, 232, 0.3)"   /* Cream/White */
+            ];
+
+            const numPetals = window.innerWidth < 768 ? 18 : 35;
+            const petals = [];
+
+            class Petal {
+                constructor() {
+                    this.reset();
+                }
+
+                reset() {
+                    this.x = Math.random() * width;
+                    this.y = Math.random() * height - height;
+                    this.size = Math.random() * 7 + 5;
+                    this.speedY = Math.random() * 0.8 + 0.4;
+                    this.speedX = Math.random() * 0.5 - 0.25;
+                    this.angle = Math.random() * 360;
+                    this.spin = Math.random() * 1 - 0.5;
+                    this.color = petalColors[Math.floor(Math.random() * petalColors.length)];
+                }
+
+                update() {
+                    this.y += this.speedY;
+                    this.x += Math.sin(this.y * 0.01) + this.speedX;
+                    this.angle += this.spin;
+
+                    if (this.y > height + 20) {
+                        this.reset();
+                    }
+                }
+
+                draw() {
+                    ctx.save();
+                    ctx.translate(this.x, this.y);
+                    ctx.rotate((this.angle * Math.PI) / 180);
+                    ctx.fillStyle = this.color;
+                    ctx.beginPath();
+                    ctx.ellipse(0, 0, this.size, this.size / 2, 0, 0, 2 * Math.PI);
+                    ctx.fill();
+                    ctx.restore();
+                }
+            }
+
+            for (let i = 0; i < numPetals; i++) {
+                petals.push(new Petal());
+            }
+
+            function render() {
+                ctx.clearRect(0, 0, width, height);
+                petals.forEach((p) => {
+                    p.update();
+                    p.draw();
+                });
+                requestAnimationFrame(render);
+            }
+
+            render();
+        }
+    </script>
+</body>
+</html>
